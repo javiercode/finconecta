@@ -1,0 +1,15 @@
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.menu{
+  text-decoration: 'none';
+  color: 'black';
+}
+
+.menu-active{
+  text-decoration: 'none';
+  color: 'blue';
+}

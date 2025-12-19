@@ -1,0 +1,327 @@
+# ====================================
+# RAÍZ DEL PROYECTO
+# ====================================
+
+# Archivos del sistema operativo
+.DS_Store
+desktop.ini
+Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.temp
+~$*
+*.bak
+
+# Archivos de entorno
+.env.local
+.env.*.local
+.env.production
+.env.test
+.env.development
+.env.example
+
+# Docker (excepto el compose principal)
+docker-compose.override.yml
+docker-compose.*.yml
+.dockerignore
+
+# Logs
+*.log
+logs/
+!backend/src/main/resources/logs/
+
+# Directorios temporales
+tmp/
+temp/
+dump/
+
+# ====================================
+# BACKEND (Java/Spring Boot/Maven)
+# ====================================
+
+# JetBrains IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+.idea_modules/
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Archivos compilados
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Archivos de logs específicos
+backend/logs/
+backend/*.log
+
+# H2 Database
+*.h2.db
+*.mv.db
+
+# Archivos de configuración local
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-dev.properties
+backend/src/main/resources/application-dev.yml
+
+# Archivos de test
+backend/src/test/resources/application-test.properties
+backend/src/test/resources/application-test.yml
+
+# Archivos de cobertura
+backend/target/jacoco.exec
+backend/target/jacoco-it.exec
+backend/target/site/jacoco/
+
+# Archivos de reportes
+backend/target/surefire-reports/
+backend/target/failsafe-reports/
+backend/target/site/
+
+# Archivos de Lombok
+backend/lombok.config
+
+# ====================================
+# FRONTEND (React)
+# ====================================
+
+# Node modules
+frontend/node_modules/
+frontend/.npm
+frontend/.node_repl_history
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Antigravity IDE (similar a VSCode)
+frontend/.ag/
+frontend/.antigravity/
+frontend/*.agproj
+frontend/*.agworkspace
+
+# Build outputs
+frontend/build/
+frontend/dist/
+frontend/out/
+frontend/.next/
+
+# Dependencies
+frontend/jspm_packages/
+
+# Optional npm cache directory
+frontend/.npm
+
+# Optional eslint cache
+frontend/.eslintcache
+
+# Microbundle cache
+frontend/.rpt2_cache/
+frontend/.rts2_cache_cjs/
+frontend/.rts2_cache_es/
+frontend/.rts2_cache_umd/
+
+# Optional REPL history
+frontend/.node_repl_history
+
+# Output of 'npm pack'
+frontend/*.tgz
+frontend/*.tar.gz
+
+# Yarn Integrity file
+frontend/.yarn-integrity
+
+# parcel-bundler cache
+frontend/.cache
+frontend/.parcel-cache
+frontend/parcel-cache/
+
+# Next.js build output
+frontend/.next/
+frontend/next-env.d.ts
+
+# Gatsby files
+frontend/.cache/
+frontend/public
+
+# Storybook build outputs
+frontend/storybook-static/
+frontend/.storybook/build/
+
+# Rollup cache directory
+frontend/rollup.config.js
+
+# Sapper build output
+frontend/__sapper__/
+frontend/src/routes.html
+
+# Vite cache directory
+frontend/.vite/
+frontend/vite.config.js.timestamp-*
+
+# Temporary folders
+frontend/.tmp/
+frontend/temp/
+
+# Coverage directory
+frontend/coverage/
+frontend/.nyc_output/
+
+# TypeScript cache
+frontend/.tsbuildinfo
+
+# ====================================
+# BASE DE DATOS (bd/)
+# ====================================
+
+# Archivos de backup de base de datos
+bd/*.backup
+bd/*.bak
+bd/dump/
+
+# Archivos temporales de SQL
+bd/*.tmp.sql
+bd/temp/
+
+# Archivos de log de base de datos
+bd/*.log
+
+# ====================================
+# ARCHIVOS ESPECÍFICOS EN RAÍZ
+# ====================================
+
+# Archivos de configuración local
+config.local.yml
+config.local.properties
+docker-compose.local.yml
+
+# Archivos de desarrollo personalizados
+dev.sh
+dev.bat
+start-dev.sh
+start-dev.bat
+
+# Archivos de IDE en raíz
+.project
+.classpath
+.settings/
+.factorypath
+
+# Archivos de sistema
+*.pid
+*.seed
+*.pid.lock
+
+# Documentación temporal
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# ====================================
+# EXCEPCIONES (archivos que SÍ deben estar)
+# ====================================
+
+# NO ignorar estos archivos
+!docker-compose.yml
+!.env
+!README.md
+!LICENSE
+!CHANGELOG.md
+!CONTRIBUTING.md
+
+# NO ignorar scripts importantes
+!scripts/
+!scripts/**/*.sh
+!scripts/**/*.bat
+
+# NO ignorar documentación principal
+!docs/
+!docs/**/*.md
+!docs/**/*.pdf
+
+# NO ignorar archivos de configuración principales
+!backend/src/main/resources/application.properties
+!backend/src/main/resources/application.yml
+!backend/src/main/resources/logback-spring.xml
+
+# NO ignorar archivos SQL de migración
+!bd/migrations/
+!bd/**/*.up.sql
+!bd/**/*.down.sql
+
+# NO ignorar archivos de definición de base de datos
+!bd/schema.sql
+!bd/init.sql
+!bd/seed.sql
+
+# ====================================
+# REGLAS ESPECÍFICAS ADICIONALES
+# ====================================
+
+# Ignorar todos los archivos .env excepto .env.example
+.env
+!/.env.example
+
+# Ignorar archivos de IDE pero mantener configuraciones compartidas
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# Ignorar todos los logs excepto si están en directorio específico
+*.log
+!backend/src/main/resources/logs/.gitkeep
+!frontend/logs/.gitkeep
+
+# Para Java: mantener estructura pero ignorar builds
+**/target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Para Node: mantener package.json pero ignorar node_modules
+frontend/package-lock.json
+frontend/yarn.lock
+!frontend/package.json
+
+# Archivos de cobertura generados
+**/.nyc_output
+**/coverage
+**/*.lcov
+
+# Archivos de bundle analizador
+**/*-bundle-analyzer-report.html
+**/webpack-stats.json
+
+# Archivos de profiling
+**/chrome-profiler-events.json
+**/speed-measure-plugin.json
+
+# Archivos de debug de React
+**/react-debug.log
+**/react.*.log

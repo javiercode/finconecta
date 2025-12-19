@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ServiceCfgmap}}
+  namespace: {{Namespace}}
+data:
+  REACT_APP_API_BACKEND: '{{REACT_APP_API_BACKEND}}'
+  REACT_APP_PATH: '{{REACT_APP_PATH}}'
+  REACT_APP_KEY: '{{REACT_APP_KEY}}'
