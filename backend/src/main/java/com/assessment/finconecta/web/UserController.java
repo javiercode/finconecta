@@ -70,7 +70,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/users")
+    @GetMapping("/all")
     public ResponseEntity<Response<List<UserResponseDto>>> getAllUsers() {
         List<UserResponseDto> users = userService.getAllUsers();
         return ResponseEntity.ok(

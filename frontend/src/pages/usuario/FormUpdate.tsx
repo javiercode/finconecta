@@ -17,22 +17,23 @@ import IconButton from "@mui/material/IconButton";
 import IconEdit from "@mui/icons-material/ModeEditOutlineOutlined";
 import {
     putService,
-  } from "../../service/index.service";
-  import {
+} from "../../service/index.service";
+import {
     dataUser,
     typeRolData,
     typeSucursalData,
     typeCreate,
-  } from "../../interfaces/usuario";
+} from "../../interfaces/usuario";
 import { btnDefault } from '../../utils/styles/General';
 
-  interface IFormEditProps {
+interface IFormEditProps {
     usuario: dataUser,
     sucursalList: typeSucursalData[],
-    rolList:typeRolData[],
-    getList: () => void}
+    rolList: typeRolData[],
+    getList: () => void
+}
 
-const FormUpdate: React.FC<IFormEditProps> = ({usuario,sucursalList, rolList, getList}) => {
+const FormUpdate: React.FC<IFormEditProps> = ({ usuario, sucursalList, rolList, getList }) => {
 
     const [open, setOpen] = React.useState(false);
     const [textErrorUser, setTextErrorUser] = React.useState<string>("");
@@ -43,16 +44,12 @@ const FormUpdate: React.FC<IFormEditProps> = ({usuario,sucursalList, rolList, ge
         clave: "",
         sucursal: 0,
     });
-    const [codSucursal, setCodSucursal] = React.useState<number>(usuario.SUCURSAL);
-    const [codRol, setCodRol] = React.useState<number>(usuario.COD_ROL);
 
     const updateUser = () => {
-        createDto.clave = usuario.CLAVE;
-        createDto.sucursal = codSucursal;
-        createDto.codRolAplicacion = codRol;
-        
+        createDto.clave = usuario.username;
+
         if (createDto.codRolAplicacion !== 0 && createDto.sucursal !== 0) {
-            putService("/usuario/edit/"+usuario.IDENTIFICADOR, createDto).then((result) => {
+            putService("/usuario/edit/" + usuario.id, createDto).then((result) => {
                 setErrorApi(result.success ? "" : result.message);
                 setShowMsgApi(!result.success);
                 setOpen(!result.success);
@@ -72,19 +69,12 @@ const FormUpdate: React.FC<IFormEditProps> = ({usuario,sucursalList, rolList, ge
 
     const onChangeSucursal = (event: any) => {
         const { name, value } = event.target;
-        setCodSucursal(value);
         createDto.sucursal = value;
-    };
-
-    const onChangeRol = (event: any) => {
-        const { name, value } = event.target;
-        setCodRol(value);
-        createDto.codRolAplicacion = value;
     };
 
     const handleClose = () => {
         setOpen(false);
-      };
+    };
 
     return (
         <>
@@ -104,15 +94,15 @@ const FormUpdate: React.FC<IFormEditProps> = ({usuario,sucursalList, rolList, ge
                 <DialogContent>
                     <DialogContentText>
                         Tome en cuenta que al cambiar la sucursal puede cambiar la jurisdicción del dependiente.
-                        
+
                     </DialogContentText>
                     <Alert
-                            variant="outlined"
-                            severity="error"
-                            style={{ display: showMsgApi ? "block" : "none" }}
-                        >
-                            {errorApi}
-                        </Alert>
+                        variant="outlined"
+                        severity="error"
+                        style={{ display: showMsgApi ? "block" : "none" }}
+                    >
+                        {errorApi}
+                    </Alert>
                     <Stack spacing={3} direction="column">
                         <FormControl fullWidth>
                             <TextField
@@ -124,45 +114,11 @@ const FormUpdate: React.FC<IFormEditProps> = ({usuario,sucursalList, rolList, ge
                                 variant="standard"
                                 helperText={textErrorUser}
                                 error={textErrorUser !== ""}
-                                value={usuario.CLAVE}
+                                value={usuario.username}
                                 disabled
                             />
                         </FormControl>
-                        <FormControl fullWidth>
-                            <InputLabel id="select-sucursal">Sucursal</InputLabel>
-                            <Select
-                                labelId="select-sucursal"
-                                label="Sucursal"
-                                onChange={(e) => onChangeSucursal(e)}
-                                value={codSucursal}                            >
-                                {sucursalList.map((sucursal, i) => {
-                                    return (
-                                        <MenuItem value={sucursal.SUCURSAL} key={"usuario-create-sucursal-"+i} >
-                                            {sucursal.SUCURSAL + " - " + sucursal.NOMBRESUCURSAL}
-                                        </MenuItem>
-                                    );
-                                })}
-                                
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth>
-                            <InputLabel id="select-rol">Rol</InputLabel>
-                            <Select
-                                labelId="select-rol"
-                                id="select-rol"
-                                value={codRol}
-                                label="Rol"
-                                onChange={(e) => onChangeRol(e)}
-                            >
-                                {rolList.map((rol, i) => {
-                                    return (
-                                        <MenuItem value={rol.IDENTIFICADOR} key={"usuario-update-rol-"+i}>
-                                            {rol.CODIGO + " - " + rol.DESCRIPCION}
-                                        </MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </FormControl>
+
                     </Stack>
                 </DialogContent>
                 <DialogActions>

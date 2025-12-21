@@ -9,7 +9,7 @@ import SegEjecutivo from './SegEjecutivo';
 import Usuario from './usuario';
 import EvolucionGestion from './EvolucionGestion';
 import TareaCliente from './TareaCliente';
-import {BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { RouterPathEnum } from '../enums/RouterPathEnum';
 //import {createBrowserHistory } from "history"
 
@@ -17,22 +17,18 @@ import { RouterPathEnum } from '../enums/RouterPathEnum';
 
 function App() {
   return (
-      <BrowserRouter basename={process.env.REACT_APP_PATH || ""}>
+    <BrowserRouter basename={process.env.REACT_APP_PATH || ""}>
       {/* <BrowserRouter basename=""> */}
-        <Routes>
-          <Route path={RouterPathEnum.LOGIN} element={<Login />} />
+      <Routes>
+        <Route path={RouterPathEnum.LOGIN} element={<Login />} />
 
-          <Route element={<Layout />} >
-            <Route path={RouterPathEnum.HOME} element={<Home />} />
-            <Route path={RouterPathEnum.ABOUT} element={<About />} />            
-            <Route path={RouterPathEnum.USUARIOS} element={<Usuario />} />
-            <Route path={RouterPathEnum.GEO_EJECUTIVO} element={<GeoEjecutivo />} />
-            <Route path={RouterPathEnum.SEG_EJECUTIVO} element={<SegEjecutivo />} />
-            <Route path={RouterPathEnum.EVOLUCION_GESTIONES} element={<EvolucionGestion />} />
-            <Route path={RouterPathEnum.TAREA_CLIENTE} element={<TareaCliente />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+        <Route element={<Layout />} >
+          <Route path={RouterPathEnum.HOME} element={<Home />} />
+          <Route path={RouterPathEnum.ABOUT} element={<About />} />
+          <Route path={RouterPathEnum.USUARIOS} element={<Usuario />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

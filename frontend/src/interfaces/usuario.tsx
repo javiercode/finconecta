@@ -1,14 +1,11 @@
 
 export interface dataUser {
-  IDENTIFICADOR: number;
-  BANCA: number;
-  CLAVE: string;
-  SUCURSAL: number;
-  NOMBRE: string;
-  CODIGO: string;
-  DESCRIPCION: string;
-  COD_ROL: number;
-  NRO?:number;
+  id: number;
+  nombre: number;
+  username: string;
+  email: number;
+  active: string;
+  NRO?: number;
 }
 
 export interface typeData {
@@ -37,4 +34,26 @@ export interface typeCreate {
   clave: string;
   sucursal: number;
 }
-// export {IAuthReducer};
+
+
+export interface typeSetError {
+  nombre: any,
+  username: any,
+  password: any,
+  email: any,
+}
+
+export interface typeFormError {
+  nombre: string,
+  username: string,
+  password: string,
+  email: string,
+}
+
+export interface dataApi {
+  nombre: string,
+  username: string,
+  password: string,
+  email: string,
+  active?: string,
+}

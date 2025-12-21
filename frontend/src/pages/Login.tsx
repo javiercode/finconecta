@@ -34,7 +34,6 @@ function Login() {
   let navigate = useNavigate();
 
   useEffect(() => {
-    console.log("useEffect");
   }, []);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

@@ -32,7 +32,7 @@ const FormDelete: React.FC<IFormDeleteProps> = ({ usuario, getList }) => {
   };
 
   const deleteUser = () => {
-    deleteService("/usuario/delete/" + usuario.IDENTIFICADOR, {}).then(
+    deleteService("/usuario/delete/" + usuario.id, {}).then(
       (result) => {
         setErrorApi(result.success ? "" : result.message);
         setShowMsgApi(!result.success);
@@ -62,16 +62,16 @@ const FormDelete: React.FC<IFormDeleteProps> = ({ usuario, getList }) => {
         <DialogTitle>{"¿Eliminar el registro?"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            Esta seguro de eliminar el Rol de: {usuario.NOMBRE}
-            
+            Esta seguro de eliminar el Rol de: {usuario.nombre}
+
           </DialogContentText>
           <Alert
-              variant="outlined"
-              severity="error"
-              style={{ display: showMsgApi ? "block" : "none" }}
-            >
-              {errorApi}
-            </Alert>
+            variant="outlined"
+            severity="error"
+            style={{ display: showMsgApi ? "block" : "none" }}
+          >
+            {errorApi}
+          </Alert>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancelar</Button>

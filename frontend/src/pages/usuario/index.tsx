@@ -37,7 +37,7 @@ export interface SimpleDialogProps {
 }
 
 interface Column {
-  id: "nro" | "clave" | "rol" | "nombre" | "sucursal" | "options";
+  id: "nro" | "nombre" | "username" | "correo" | "activo" | "options";
   label: string;
   minWidth?: number;
   align?: "right";
@@ -46,20 +46,20 @@ interface Column {
 
 const columns: readonly Column[] = [
   { id: "nro", label: "Nro", minWidth: 50 },
-  { id: "clave", label: "Usuario", minWidth: 100 },
+  { id: "nombre", label: "Nombre", minWidth: 100 },
   {
-    id: "rol",
-    label: "Rol",
+    id: "username",
+    label: "Usuario",
     minWidth: 170,
   },
   {
-    id: "nombre",
-    label: "Nombre",
+    id: "correo",
+    label: "Correo",
     minWidth: 170,
   },
   {
-    id: "sucursal",
-    label: "Sucursal",
+    id: "activo",
+    label: "Activo",
     minWidth: 170,
     format: (value: number) => value.toFixed(0),
   },
@@ -82,17 +82,11 @@ export default function Usuario() {
 
   let navigate = useNavigate();
   React.useEffect(() => {
-    if(esOficial()){
-      navigate('/home');
-    }else{
-      getList();
-      getListSucursal();
-      getListRol();
-    }
+    getList();
   }, []);
 
-  const getList = ({ pagina = 0, limite = 10 }: { pagina?: number; limite?: number } = {}) => {
-    getService(`/usuario/list/${pagina}/${limite}`, {}).then((result) => {
+  const getList = () => {
+    getService(`/users/all`, {}).then((result) => {
       if (result.success) {
         const userList = result.data as dataUser[];
         userList.forEach((user, i) => {
@@ -101,37 +95,21 @@ export default function Usuario() {
         setDataList(userList);
         setDataTotal(result.total || 0);
       }
-    }).catch(()=>{
+    }).catch(() => {
       console.error("error de carga de usuario")
     });
   };
 
-  const getListSucursal = () => {
-    getService("/sucursal/list", {}).then((result) => {
-      if (result.success) {
-        setSucursalList(result.data);
-      }
-    });
-  };
-
-  const getListRol = () => {
-      getService("/rol/list", {}).then((result) => {
-        if (result.success) {
-          setRolList(result.data);
-        }
-      });
-  };
-
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
-    getList({ pagina: newPage })
+    getList()
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(+event.target.value);
-    getList({ limite: +event.target.value })
+    getList()
     setPage(0);
   };
 
@@ -140,11 +118,11 @@ export default function Usuario() {
       <Typography variant="h4" component="h4">
         ADMINISTRACIÓN DE USUARIOS
       </Typography>
-      
+
       <Grid container component="main" justifyContent={'flex-end'} >
-        <FormCreate sucursalList={sucursalList} rolList={rolList} getList={getList} />
+        <FormCreate getList={getList} />
       </Grid>
-      <Box sx={{ width: '100%' }} style={{display:dataList.length==0?'block':'none'}}>
+      <Box sx={{ width: '100%' }} style={{ display: dataList.length == 0 ? 'block' : 'none' }}>
         <LinearProgress />
       </Box>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -170,12 +148,10 @@ export default function Usuario() {
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.NRO}>
                       <TableCell>{row.NRO}</TableCell>
-                      <TableCell>{row.CLAVE}</TableCell>
-                      <TableCell>
-                        {row.CODIGO + " - " + row.DESCRIPCION}
-                      </TableCell>
-                      <TableCell>{row.NOMBRE}</TableCell>
-                      <TableCell>{row.SUCURSAL}</TableCell>
+                      <TableCell>{row.nombre}</TableCell>
+                      <TableCell>{row.username}</TableCell>
+                      <TableCell>{row.email}</TableCell>
+                      <TableCell>{row.active ? "SI" : "NO"}</TableCell>
                       <TableCell>
                         <Stack direction="row" alignItems="center" spacing={2}>
                           <FormUpdate usuario={row} sucursalList={sucursalList} rolList={rolList} getList={getList} />
@@ -196,7 +172,7 @@ export default function Usuario() {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-              />
+        />
       </Paper>
     </>
   );

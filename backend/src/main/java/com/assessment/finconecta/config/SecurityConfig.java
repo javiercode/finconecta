@@ -62,6 +62,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -90,20 +91,19 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Orígenes permitidos (agrega los que necesites)
+        // 1. Orígenes permitidos EXPLÍCITOS
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",     // React dev server
-                "http://localhost:5173",     // Vite dev server
-                "http://127.0.0.1:3000",     // React alternativo
-                "http://localhost:8080"      // Backend mismo origen
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "http://localhost:5173"
         ));
 
-        // Métodos HTTP permitidos
+        // 2. TODOS los métodos necesarios
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"
         ));
 
-        // Headers permitidos
+        // 3. TODOS los headers necesarios
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
@@ -112,27 +112,27 @@ public class SecurityConfig {
                 "X-Requested-With",
                 "Access-Control-Request-Method",
                 "Access-Control-Request-Headers",
-                "Cache-Control",
-                "X-Auth-Token"
+                "Cache-Control"
         ));
 
-        // Headers expuestos (que el cliente puede leer)
+        // 4. Headers expuestos (IMPORTANTE)
         configuration.setExposedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
                 "Access-Control-Allow-Origin",
-                "Access-Control-Allow-Credentials",
-                "X-Auth-Token"
+                "Access-Control-Allow-Credentials"
         ));
 
-        // Permitir credenciales (cookies, auth headers)
+        // 5. Permitir credenciales
         configuration.setAllowCredentials(true);
 
-        // Tiempo de cache para preflight (1 hora)
+        // 6. Tiempo de cache (1 hora)
         configuration.setMaxAge(3600L);
 
+        // 7. Aplicar a TODAS las rutas
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Aplica a todas las rutas
+        source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 

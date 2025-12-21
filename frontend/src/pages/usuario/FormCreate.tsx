@@ -13,37 +13,89 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import Box from '@mui/material/Box';
+import InputAdornment from '@mui/material/InputAdornment';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import AvatarIcon from '@mui/icons-material/Person';
+import FormHelperText from '@mui/material/FormHelperText';
+
+
 import {
     postService,
-  } from "../../service/index.service";
-  import {
-    dataUser,
-    typeRolData,
-    typeSucursalData,
-    typeCreate,
-  } from "../../interfaces/usuario";
+} from "../../service/index.service";
+import {
+    dataApi,
+    typeFormError,
+    typeSetError, //typeApiString
+} from "../../interfaces/usuario";
+import {
+    IOptionMap
+} from "../../interfaces/general";
+import Color from '../../utils/styles/Color';
 import { btnDefault } from '../../utils/styles/General';
+import { Divider } from '@mui/material';
 
-  interface IFormCreateProps {
-    sucursalList: typeSucursalData[],
-    rolList:typeRolData[],
-    getList: () => void}
+interface IFormCreateProps {
+    getList: () => void
+}
 
-const FormCreate: React.FC<IFormCreateProps> = ({sucursalList, rolList, getList}) => {
+let initDto: dataApi = {
+    nombre: "",
+    username: "",
+    password: "",
+    email: ""
 
+};
+
+let regexError: typeFormError = {
+    nombre: "^[a-zA-ZÀ-ÿ ]{1,200}$",
+    username: "^[a-zA-ZÀ-ÿ ]{1,200}$",
+    password: "^[a-zA-ZÀ-ÿ ]{1,200}$",
+    email: "^[a-zA-Z0-9 .:#ñÑ]{1,200}$",
+
+};
+
+
+const FormCreate: React.FC<IFormCreateProps> = ({ getList }) => {
     const [open, setOpen] = React.useState(false);
-    const [textErrorUser, setTextErrorUser] = React.useState<string>("");
     const [errorApi, setErrorApi] = React.useState<string>("");
     const [showMsgApi, setShowMsgApi] = React.useState<boolean>(false);
-    const [createDto, setCreateDto] = React.useState<typeCreate>({
-        codRolAplicacion: 0,
-        clave: "",
-        sucursal: 0,
-    });
+    const [createDto, setCreateDto] = React.useState<dataApi>(initDto);
+
+    const [usernameError, setUsernameError] = React.useState<string>("");
+    const [passwordError, setPasswordError] = React.useState<string>("");
+    const [nombreError, setNombreError] = React.useState<string>("");
+    const [emailError, setEmailError] = React.useState<string>("");
+
+
+    React.useEffect(() => {
+    }, []);
+
+    let tFormError: typeSetError = {
+        nombre: setNombreError,
+        username: setUsernameError,
+        password: setPasswordError,
+        email: setEmailError,
+
+    };
+
+    const textControl: typeSetError = {
+        nombre: "Solo letras, maximo 200 caracteres",
+        username: "Solo letras, maximo 50 caracteres",
+        password: "Solo letras, maximo 50 caracteres",
+        email: "Maximo 200 caracteres!",
+
+    };
 
     const saveUser = () => {
-        if (createDto.codRolAplicacion !== 0 && createDto.sucursal !== 0) {
-            postService("/usuario/create", createDto).then((result) => {
+        Object.keys(createDto).forEach(key => {
+            const x = { text: key, value: createDto[key as keyof dataApi] }
+            onChangeInput({ 'target': { 'name': key, 'value': createDto[key as keyof dataApi] } }, key)
+        });
+        if (createDto.nombre !== "" && createDto.username !== "" && createDto.password !== ""
+            && createDto.email !== "") {
+            createDto.nombre = createDto.nombre.toLocaleUpperCase();
+            postService("/cliente/create", createDto).then((result) => {
                 setErrorApi(result.success ? "" : result.message);
                 setShowMsgApi(!result.success);
                 setOpen(!result.success);
@@ -57,42 +109,35 @@ const FormCreate: React.FC<IFormCreateProps> = ({sucursalList, rolList, getList}
         }
     };
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
 
-    const onChangeUser = (event: any) => {
-        const { name, value } = event.target;
-        let regex = new RegExp("^[A-Z0-9 ]{1,4}$");
+    const onChangeInput = (event: any, input: string) => {
+        let dto = createDto;
+        const { value } = event.target;
+        let regex = new RegExp(regexError[input as keyof typeFormError]);
         if (regex.test(value)) {
-            let dto = createDto;
-            dto.clave = value;
+            dto[input as keyof dataApi] = value;
             setCreateDto(dto);
-            setTextErrorUser("");
+            tFormError[input as keyof typeSetError]("")
         } else {
-            setTextErrorUser(
-                "Formato incorrecto! (Mayusculas y maximo 4 carácteres)"
-            );
+            if (value.length == 0) {
+                tFormError[input as keyof typeSetError]("Campo " + input + " requerido!")
+            } else {
+                tFormError[input as keyof typeSetError](textControl[input as keyof typeSetError])
+            }
         }
-    };
-
-    const onChangeSucursal = (event: any) => {
-        const { name, value } = event.target;
-        let dto = createDto;
-        dto.sucursal = value;
-        setCreateDto(dto);
-    };
-
-    const onChangeRol = (event: any) => {
-        const { name, value } = event.target;
-        let dto = createDto;
-        dto.codRolAplicacion = value;
-        setCreateDto(dto);
     };
 
     const handleClose = () => {
         setOpen(false);
-      };
+    };
+    const handleClickOpen = () => {
+
+        setCreateDto(initDto);
+        setOpen(true);
+
+        setErrorApi("");
+        setShowMsgApi(false);
+    };
 
     return (
         <>
@@ -104,79 +149,70 @@ const FormCreate: React.FC<IFormCreateProps> = ({sucursalList, rolList, getList}
             >
                 Registrar
             </Button>
-
-            <Dialog open={open}>
-                <DialogTitle>Crear Rol</DialogTitle>
-                <DialogContent>
+            <Dialog open={open} key={'cliente-formcreate-dialog'}>
+                <DialogTitle key={'cliente-formcreate-dialogtitle'}>Crear Cliente</DialogTitle>
+                <DialogContent key={'cliente-formcreate-dialogcontent'}>
                     <DialogContentText>
                         Cuando se registre el usuario aqui, el mismo podra ingresar al
                         sistema.
+
                     </DialogContentText>
                     <Alert
-                            variant="outlined"
-                            severity="error"
-                            style={{ display: showMsgApi ? "block" : "none" }}
-                        >
-                            {errorApi}
-                        </Alert>
-                    <Stack spacing={3} direction="column">
-                        <FormControl fullWidth>
+                        variant="outlined"
+                        severity="error"
+                        style={{ display: showMsgApi ? "block" : "none" }}
+                        key={'cliente-formcreate-dialog-alert'}
+                    >
+                        {errorApi}
+                    </Alert>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap' }} key={'cliente-formcreate-dialog-box'}>
+                        <FormControl fullWidth sx={{ m: 1 }} key={'cliente-formcreate-dialog-formcontrol'}>
                             <TextField
-                                autoFocus
-                                margin="dense"
-                                id="usuario"
-                                label="Usuario"
-                                type="email"
-                                fullWidth
-                                variant="standard"
-                                onChange={(e) => onChangeUser(e)}
-                                helperText={textErrorUser}
-                                error={textErrorUser !== ""}
+                                label="Nombre"
+                                InputProps={{
+                                    startAdornment: <AvatarIcon />,
+                                }}
+                                onChange={(e) => onChangeInput(e, "nombre")}
+                                helperText={nombreError}
+                                error={nombreError !== ""}
+                                key={'cliente-formcreate-dialog-formcontrol-nombre'}
                             />
                         </FormControl>
-                        <FormControl fullWidth>
-                            <InputLabel id="select-sucursal">Sucursal</InputLabel>
-                            <Select
-                                labelId="select-sucursal"
-                                id="select-sucursal"
-                                //value={30}
-                                label="Sucursal"
-                                onChange={(e) => onChangeSucursal(e)}
-                            >
-                                {sucursalList.map((sucursal, i) => {
-                                    return (
-                                        <MenuItem value={sucursal.SUCURSAL} key={"usuario-update-sucursal-"+i}>
-                                            {sucursal.SUCURSAL + " - " + sucursal.NOMBRESUCURSAL}
-                                        </MenuItem>
-                                    );
-                                })}
-                            </Select>
+                        <FormControl fullWidth sx={{ m: 1 }} key={'cliente-formcreate-dialog-formcontrol'}>
+                            <TextField
+                                label="Usuario"
+                                onChange={(e) => onChangeInput(e, "username")}
+                                helperText={usernameError}
+                                error={usernameError !== ""}
+                                key={'cliente-formcreate-dialog-formcontrol-telefono1'}
+                            />
                         </FormControl>
-                        <FormControl fullWidth>
-                            <InputLabel id="select-rol">Rol</InputLabel>
-                            <Select
-                                labelId="select-rol"
-                                id="select-rol"
-                                // value={30}
-                                label="Rol"
-                                onChange={(e) => onChangeRol(e)}
-                            >
-                                {rolList.map((rol, i) => {
-                                    return (
-                                        <MenuItem value={rol.IDENTIFICADOR} key={"usuario-update-rol-"+i}>
-                                            {rol.CODIGO + " - " + rol.DESCRIPCION}
-                                        </MenuItem>
-                                    );
-                                })}
-                            </Select>
+                        <FormControl fullWidth sx={{ m: 1 }} key={'cliente-formcreate-dialog-formcontrol'}>
+                            <TextField
+                                label="Correo" type='email'
+                                onChange={(e) => onChangeInput(e, "email")}
+                                helperText={emailError}
+                                error={emailError !== ""}
+                                key={'cliente-formcreate-dialog-formcontrol-email'}
+                            />
                         </FormControl>
-                    </Stack>
-                </DialogContent>
+                        <FormControl fullWidth sx={{ m: 1 }} key={'cliente-formcreate-dialog-formcontrol'}>
+                            <TextField
+                                label="Contraseña" type='password'
+                                onChange={(e) => onChangeInput(e, "password")}
+                                helperText={passwordError}
+                                error={passwordError !== ""}
+                                key={'cliente-formcreate-dialog-formcontrol-password'}
+                            />
+                        </FormControl>
+                    </Box >
+
+                </DialogContent >
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
                     <Button onClick={() => saveUser()}>Crear</Button>
                 </DialogActions>
-            </Dialog>
+            </Dialog >
         </>
     )
 }
