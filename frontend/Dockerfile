@@ -1,20 +1,26 @@
-FROM node:16.14.2-alpine3.15 as build
+# Frontend Dockerfile - Development Mode
+# Matches local development: npm start
+
+FROM node:18-alpine
+
 WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
-COPY ./package.json /app/
-COPY ./package-lock.json /app/
-# COPY ./.env /app/
-RUN npm install
-COPY . /app
-RUN npm run build
 
+# Copy package files
+COPY package.json package-lock.json ./
 
-FROM nginx:1.17.8-alpine
+# Install dependencies
+RUN npm ci --silent
 
-ENV NODE_ENV testing
+# Copy source code
+COPY . .
 
-COPY --from=build /app/build /usr/share/nginx/html
-COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
-RUN mkdir -p /usr/src/app
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Expose port
+EXPOSE 3000
+
+# Environment variables for development
+ENV CHOKIDAR_USEPOLLING=true
+ENV WDS_SOCKET_PORT=0
+
+# Run development server (like npm start)
+# This enables hot module replacement
+CMD ["npm", "start"]
