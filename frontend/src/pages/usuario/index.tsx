@@ -154,7 +154,7 @@ export default function Usuario() {
                       <TableCell>{row.active ? "SI" : "NO"}</TableCell>
                       <TableCell>
                         <Stack direction="row" alignItems="center" spacing={2}>
-                          <FormUpdate usuario={row} sucursalList={sucursalList} rolList={rolList} getList={getList} />
+                          <FormUpdate usuario={row}  getList={getList} idUser={row.id} />
                           <FormDelete usuario={row} getList={getList} />
                         </Stack>
                       </TableCell>

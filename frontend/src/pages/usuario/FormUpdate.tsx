@@ -13,43 +13,101 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import Box from '@mui/material/Box';
+import InputAdornment from '@mui/material/InputAdornment';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import IconButton from "@mui/material/IconButton";
 import IconEdit from "@mui/icons-material/ModeEditOutlineOutlined";
+import AvatarIcon from '@mui/icons-material/Person';
+import FormHelperText from '@mui/material/FormHelperText';
+
 import {
     putService,
 } from "../../service/index.service";
 import {
-    dataUser,
-    typeRolData,
-    typeSucursalData,
-    typeCreate,
+    typeFormError,
+    typeSetError, typeSetErrorEdit
 } from "../../interfaces/usuario";
+import {
+    IOptionMap
+} from "../../interfaces/general";
 import { btnDefault } from '../../utils/styles/General';
+import { dataUserEdit } from '../../interfaces/usuario';
 
-interface IFormEditProps {
-    usuario: dataUser,
-    sucursalList: typeSucursalData[],
-    rolList: typeRolData[],
+interface IFormUpdateProps {
+    usuario: dataUserEdit,
+    idUser: number,
     getList: () => void
 }
 
-const FormUpdate: React.FC<IFormEditProps> = ({ usuario, sucursalList, rolList, getList }) => {
+let initDto: dataUserEdit = {
+    nombre: "",
+    username: "",
+    email: ""
+};
+
+let regexError: typeFormError = {
+    nombre: "^[a-zA-ZÀ-ÿ ]{1,200}$",
+    username: "^[a-zA-Z0-9-.]{3,50}$",
+    password: "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]{6,20}$",
+    email: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+};
+
+
+
+
+const FormUpdate: React.FC<IFormUpdateProps> = ({ usuario, idUser, getList }) => {
 
     const [open, setOpen] = React.useState(false);
-    const [textErrorUser, setTextErrorUser] = React.useState<string>("");
     const [errorApi, setErrorApi] = React.useState<string>("");
     const [showMsgApi, setShowMsgApi] = React.useState<boolean>(false);
-    const [createDto, setCreateDto] = React.useState<typeCreate>({
-        codRolAplicacion: 0,
-        clave: "",
-        sucursal: 0,
-    });
+    const [createDto, setCreateDto] = React.useState<dataUserEdit>(initDto);
 
-    const updateUser = () => {
-        createDto.clave = usuario.username;
+    const [nombre, setNombre] = React.useState<string>(usuario.nombre);
+    const [username, setUsername] = React.useState<string>(usuario.username);
+    const [email, setEmail] = React.useState<string>(usuario.email);
 
-        if (createDto.codRolAplicacion !== 0 && createDto.sucursal !== 0) {
-            putService("/usuario/edit/" + usuario.id, createDto).then((result) => {
+    const [nombreError, setNombreError] = React.useState<string>("");
+    const [usernameError, setUsernameError] = React.useState<string>("");
+    const [emailError, setEmailError] = React.useState<string>("");
+
+
+    React.useEffect(() => {
+    }, []);
+
+    let tForm: typeSetErrorEdit = {
+        nombre: setNombre,
+        username: setNombre,
+        email: setEmail,
+    };
+
+    let tFormError: typeSetErrorEdit = {
+        nombre: setNombreError,
+        username: setUsernameError,
+        email: setEmailError,
+
+    };
+
+    let textControl: typeSetErrorEdit = {
+        nombre: "Solo letras, maximo 200 caracteres",
+        username: "Solo letras, minimo 3, maximo 50 caracteres",
+        email: "Formato de correo invalido",
+    };
+
+    const saveUser = () => {
+        let updateDto = createDto as dataUserEdit;
+        updateDto.nombre = nombre;
+        updateDto.username = username;
+        updateDto.email = email;
+
+        setCreateDto(updateDto)
+        Object.keys(createDto).forEach(key => {
+            const x = { text: key, value: createDto[key as keyof dataUserEdit] }
+            onChangeInput({ 'target': { 'name': key, 'value': createDto[key as keyof dataUserEdit] } }, key)
+        });
+        if (createDto.nombre !== "" && createDto.username !== ""
+            && createDto.email !== "") {
+            putService("/users/" + idUser, createDto).then((result) => {
                 setErrorApi(result.success ? "" : result.message);
                 setShowMsgApi(!result.success);
                 setOpen(!result.success);
@@ -64,12 +122,41 @@ const FormUpdate: React.FC<IFormEditProps> = ({ usuario, sucursalList, rolList, 
     };
 
     const handleClickOpen = () => {
+        initDto = {
+            nombre: "",
+            username: "",
+            email: "",
+
+        };
+
+        setNombre(usuario.nombre);
+        setUsername(usuario.username);
+        setEmail(usuario.email);
+
         setOpen(true);
     };
 
-    const onChangeSucursal = (event: any) => {
+    const onChangeInput = (event: any, input: string) => {
         const { name, value } = event.target;
-        createDto.sucursal = value;
+        console.log("value", value)
+        console.log("input", input)
+        let regex = new RegExp(regexError[input as keyof typeFormError]);
+        if (regex.test(value)) {
+            let dto = createDto;
+            dto[input as keyof dataUserEdit] = value;
+            console.log("dto",dto)
+            setCreateDto(dto);
+            tFormError[input as keyof dataUserEdit]("")
+
+        } else {
+            tFormError[input as keyof dataUserEdit]("Formato de: " + input + " incorrecto!")
+            if (!value && value.length == 0) {
+                tFormError[input as keyof dataUserEdit]("Campo " + input + " requerido!")
+            } else {
+                tFormError[input as keyof dataUserEdit](textControl[input as keyof dataUserEdit])
+            }
+        }
+        tForm[input as keyof dataUserEdit](value)
     };
 
     const handleClose = () => {
@@ -80,6 +167,7 @@ const FormUpdate: React.FC<IFormEditProps> = ({ usuario, sucursalList, rolList, 
         <>
             <label htmlFor="icon-delete">
                 <IconButton
+                    color="primary"
                     aria-label="upload picture"
                     component="span"
                     onClick={handleClickOpen}
@@ -90,12 +178,8 @@ const FormUpdate: React.FC<IFormEditProps> = ({ usuario, sucursalList, rolList, 
             </label>
 
             <Dialog open={open}>
-                <DialogTitle>Editar Rol</DialogTitle>
+                <DialogTitle>Editar Usuario</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        Tome en cuenta que al cambiar la sucursal puede cambiar la jurisdicción del dependiente.
-
-                    </DialogContentText>
                     <Alert
                         variant="outlined"
                         severity="error"
@@ -103,27 +187,43 @@ const FormUpdate: React.FC<IFormEditProps> = ({ usuario, sucursalList, rolList, 
                     >
                         {errorApi}
                     </Alert>
-                    <Stack spacing={3} direction="column">
-                        <FormControl fullWidth>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                        <FormControl fullWidth sx={{ m: 1 }} >
                             <TextField
-                                autoFocus
-                                margin="dense"
+                                label="Nombre"
+                                value={nombre}
+                                InputProps={{
+                                    startAdornment: <AvatarIcon />,
+                                }}
+                                onChange={(e) => onChangeInput(e, "nombre")}
+                                helperText={nombreError}
+                                error={nombreError !== ""}
+                            />
+                        </FormControl>
+                        <FormControl fullWidth sx={{ m: 1 }} >
+                            <TextField
                                 label="Usuario"
-                                type="email"
-                                fullWidth
-                                variant="standard"
-                                helperText={textErrorUser}
-                                error={textErrorUser !== ""}
-                                value={usuario.username}
-                                disabled
+                                value={username}
+                                onChange={(e) => onChangeInput(e, "username")}
+                                helperText={usernameError}
+                                error={usernameError !== ""}
+                            />
+                        </FormControl>
+                        <FormControl fullWidth sx={{ m: 1 }} >
+                            <TextField
+                                label="Correo"
+                                value={email}
+                                onChange={(e) => onChangeInput(e, "email")}
+                                helperText={emailError}
+                                error={emailError !== ""}
                             />
                         </FormControl>
 
-                    </Stack>
+                    </Box>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={() => updateUser()}>Actualizar</Button>
+                    <Button onClick={() => saveUser()}>Actualizar</Button>
                 </DialogActions>
             </Dialog>
         </>

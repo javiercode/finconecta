@@ -49,9 +49,9 @@ let initDto: dataApi = {
 
 let regexError: typeFormError = {
     nombre: "^[a-zA-ZÀ-ÿ ]{1,200}$",
-    username: "^[a-zA-ZÀ-ÿ ]{1,200}$",
-    password: "^[a-zA-ZÀ-ÿ ]{1,200}$",
-    email: "^[a-zA-Z0-9 .:#ñÑ]{1,200}$",
+    username: "^[a-zA-Z0-9-.]{3,50}$",
+    password: "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]{6,20}$",
+    email: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
 
 };
 
@@ -81,9 +81,9 @@ const FormCreate: React.FC<IFormCreateProps> = ({ getList }) => {
 
     const textControl: typeSetError = {
         nombre: "Solo letras, maximo 200 caracteres",
-        username: "Solo letras, maximo 50 caracteres",
-        password: "Solo letras, maximo 50 caracteres",
-        email: "Maximo 200 caracteres!",
+        username: "Solo letras, minimo 3, maximo 50 caracteres",
+        password: "Solo letras, numeros y los siguientes cararcteres: . -  (minimo 6 y maximo 50 caracteres)",
+        email: "Formato de correo invalido",
 
     };
 
@@ -95,7 +95,7 @@ const FormCreate: React.FC<IFormCreateProps> = ({ getList }) => {
         if (createDto.nombre !== "" && createDto.username !== "" && createDto.password !== ""
             && createDto.email !== "") {
             createDto.nombre = createDto.nombre.toLocaleUpperCase();
-            postService("/cliente/create", createDto).then((result) => {
+            postService("/users", createDto).then((result) => {
                 setErrorApi(result.success ? "" : result.message);
                 setShowMsgApi(!result.success);
                 setOpen(!result.success);
@@ -149,9 +149,9 @@ const FormCreate: React.FC<IFormCreateProps> = ({ getList }) => {
             >
                 Registrar
             </Button>
-            <Dialog open={open} key={'cliente-formcreate-dialog'}>
-                <DialogTitle key={'cliente-formcreate-dialogtitle'}>Crear Cliente</DialogTitle>
-                <DialogContent key={'cliente-formcreate-dialogcontent'}>
+            <Dialog open={open} key={'user-formcreate-dialog'}>
+                <DialogTitle key={'user-formcreate-dialogtitle'}>Crear Usuario</DialogTitle>
+                <DialogContent key={'user-formcreate-dialogcontent'}>
                     <DialogContentText>
                         Cuando se registre el usuario aqui, el mismo podra ingresar al
                         sistema.
@@ -161,12 +161,12 @@ const FormCreate: React.FC<IFormCreateProps> = ({ getList }) => {
                         variant="outlined"
                         severity="error"
                         style={{ display: showMsgApi ? "block" : "none" }}
-                        key={'cliente-formcreate-dialog-alert'}
+                        key={'user-formcreate-dialog-alert'}
                     >
                         {errorApi}
                     </Alert>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap' }} key={'cliente-formcreate-dialog-box'}>
-                        <FormControl fullWidth sx={{ m: 1 }} key={'cliente-formcreate-dialog-formcontrol'}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap' }} key={'user-formcreate-dialog-box'}>
+                        <FormControl fullWidth sx={{ m: 1 }} key={'user-formcreate-dialog-formcontrol'}>
                             <TextField
                                 label="Nombre"
                                 InputProps={{
@@ -175,34 +175,34 @@ const FormCreate: React.FC<IFormCreateProps> = ({ getList }) => {
                                 onChange={(e) => onChangeInput(e, "nombre")}
                                 helperText={nombreError}
                                 error={nombreError !== ""}
-                                key={'cliente-formcreate-dialog-formcontrol-nombre'}
+                                key={'user-formcreate-dialog-formcontrol-nombre'}
                             />
                         </FormControl>
-                        <FormControl fullWidth sx={{ m: 1 }} key={'cliente-formcreate-dialog-formcontrol'}>
+                        <FormControl fullWidth sx={{ m: 1 }} key={'user-formcreate-dialog-formcontrol'}>
                             <TextField
                                 label="Usuario"
                                 onChange={(e) => onChangeInput(e, "username")}
                                 helperText={usernameError}
                                 error={usernameError !== ""}
-                                key={'cliente-formcreate-dialog-formcontrol-telefono1'}
+                                key={'user-formcreate-dialog-formcontrol-telefono1'}
                             />
                         </FormControl>
-                        <FormControl fullWidth sx={{ m: 1 }} key={'cliente-formcreate-dialog-formcontrol'}>
+                        <FormControl fullWidth sx={{ m: 1 }} key={'user-formcreate-dialog-formcontrol'}>
                             <TextField
                                 label="Correo" type='email'
                                 onChange={(e) => onChangeInput(e, "email")}
                                 helperText={emailError}
                                 error={emailError !== ""}
-                                key={'cliente-formcreate-dialog-formcontrol-email'}
+                                key={'user-formcreate-dialog-formcontrol-email'}
                             />
                         </FormControl>
-                        <FormControl fullWidth sx={{ m: 1 }} key={'cliente-formcreate-dialog-formcontrol'}>
+                        <FormControl fullWidth sx={{ m: 1 }} key={'user-formcreate-dialog-formcontrol'}>
                             <TextField
                                 label="Contraseña" type='password'
                                 onChange={(e) => onChangeInput(e, "password")}
                                 helperText={passwordError}
                                 error={passwordError !== ""}
-                                key={'cliente-formcreate-dialog-formcontrol-password'}
+                                key={'user-formcreate-dialog-formcontrol-password'}
                             />
                         </FormControl>
                     </Box >

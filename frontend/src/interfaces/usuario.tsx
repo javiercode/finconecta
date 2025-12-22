@@ -1,11 +1,18 @@
 
 export interface dataUser {
   id: number;
-  nombre: number;
+  nombre: string;
   username: string;
-  email: number;
-  active: string;
+  email: string;
+  active: boolean;
   NRO?: number;
+}
+
+export interface dataUserEdit {
+  // id?: number;
+  nombre: string;
+  username: string;
+  email: string;
 }
 
 export interface typeData {
@@ -43,6 +50,12 @@ export interface typeSetError {
   email: any,
 }
 
+export interface typeSetErrorEdit {
+  nombre: any,
+  username: any,
+  email: any,
+}
+
 export interface typeFormError {
   nombre: string,
   username: string,
@@ -51,9 +64,17 @@ export interface typeFormError {
 }
 
 export interface dataApi {
+  id?:string
   nombre: string,
   username: string,
   password: string,
   email: string,
   active?: string,
+}
+
+export interface dataApiEdit {
+  id?:string
+  nombre: string,
+  username: string,
+  email: string,
 }
