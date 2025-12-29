@@ -223,9 +223,9 @@ kubectl delete namespace finconecta
 - **Java**: 25 (incluido en Docker)
 - **Node.js**: 18+ (incluido en Docker)
 
-## 🆘 Soporte
+## 🆘 Logs
 
-Si encuentras problemas:
+Para verificarlos:
 1. Verifica que todos los puertos estén libres
 2. Revisa los logs con `docker-compose logs` o `kubectl logs`
 3. Asegúrate de tener habilitado Kubernetes en Docker Desktop
