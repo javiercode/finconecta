@@ -43,6 +43,12 @@ services:
     volumes:
       - ./backend:/app
       - ~/.m2:/root/.m2  # Cache de Maven
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/finconecta" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # React Frontend
   frontend:

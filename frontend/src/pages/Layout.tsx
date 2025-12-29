@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
@@ -11,8 +10,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
 import MenuIcon from '@mui/icons-material/Menu';
-import Badge from '@mui/material/Badge';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import Container from '@mui/material/Container';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -24,7 +21,6 @@ import { signOut, getAuth } from '../store/login/';
 import Copyright from '../components/Copyright';
 import 'react-toastify/dist/ReactToastify.css';
 import Color from '../utils/styles/Color';
-import { Grid } from '@mui/material';
 
 const drawerWidth: number = 240;
 
@@ -129,7 +125,7 @@ function Layout() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Mi Cliente
+              Finconecta
             </Typography>
             <IconButton color="inherit" onClick={logout}>
               {/* <Badge badgeContent={4} color="secondary">
@@ -149,16 +145,19 @@ function Layout() {
             }}
             style={{ backgroundColor: Color.secondary }}
           >
-            <Box component="img"
+            {/* <Box component="img"
               sx={{
                 height: 50,
                 width: 200,
                 maxHeight: { xs: 120, md: 90 },
                 maxWidth: { xs: 350, md: 250 },
               }}
-              alt="Banco Ganadero"
-              src={require('../assets/image/logoBGA.png')}
-            />
+              alt="Finconecta"
+              src={require('../assets/image/logo.svg')}
+            /> */}
+            <Typography variant="h6" color="white" noWrap sx={{ flexGrow: 1 }}>
+              Menu
+            </Typography>
             <IconButton onClick={toggleDrawer} style={{ backgroundColor: Color.grayVariant }}>
               <ChevronLeftIcon />
             </IconButton>

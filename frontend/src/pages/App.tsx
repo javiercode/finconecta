@@ -4,11 +4,7 @@ import Layout from './Layout';
 import Login from './Login';
 import About from './About';
 import Home from './home';
-import GeoEjecutivo from './GeoEjecutivo';
-import SegEjecutivo from './SegEjecutivo';
 import Usuario from './usuario';
-import EvolucionGestion from './EvolucionGestion';
-import TareaCliente from './TareaCliente';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { RouterPathEnum } from '../enums/RouterPathEnum';
 //import {createBrowserHistory } from "history"

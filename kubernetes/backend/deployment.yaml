@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: finconecta
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        # Para Docker Desktop, usa la imagen local
+        image: finconecta-backend:latest
+        imagePullPolicy: IfNotPresent  # Usa imagen local si existe
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "kubernetes"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://postgres-service:5432/finconecta"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "postgres"
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: finconecta-secrets
+              key: postgres-password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: finconecta-secrets
+              key: jwt-secret
+        - name: SERVER_PORT
+          value: "8080"
+        - name: SERVER_SERVLET_CONTEXT_PATH
+          value: "/finconecta"
+        - name: CORS_ALLOWED_ORIGINS
+          value: "http://frontend-service:3000,http://localhost:3000"
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: "update"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /finconecta/swagger-ui/index.html
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /finconecta/swagger-ui/index.html
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5

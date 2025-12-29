@@ -8,16 +8,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import IconCreate from "@mui/icons-material/AddCircleOutlineOutlined";
 import Alert from "@mui/material/Alert";
-import Stack from "@mui/material/Stack";
 import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import Box from '@mui/material/Box';
-import InputAdornment from '@mui/material/InputAdornment';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import AvatarIcon from '@mui/icons-material/Person';
-import FormHelperText from '@mui/material/FormHelperText';
 
 
 import {
@@ -28,12 +21,7 @@ import {
     typeFormError,
     typeSetError, //typeApiString
 } from "../../interfaces/usuario";
-import {
-    IOptionMap
-} from "../../interfaces/general";
-import Color from '../../utils/styles/Color';
 import { btnDefault } from '../../utils/styles/General';
-import { Divider } from '@mui/material';
 
 interface IFormCreateProps {
     getList: () => void
@@ -89,7 +77,6 @@ const FormCreate: React.FC<IFormCreateProps> = ({ getList }) => {
 
     const saveUser = () => {
         Object.keys(createDto).forEach(key => {
-            const x = { text: key, value: createDto[key as keyof dataApi] }
             onChangeInput({ 'target': { 'name': key, 'value': createDto[key as keyof dataApi] } }, key)
         });
         if (createDto.nombre !== "" && createDto.username !== "" && createDto.password !== ""
@@ -119,7 +106,7 @@ const FormCreate: React.FC<IFormCreateProps> = ({ getList }) => {
             setCreateDto(dto);
             tFormError[input as keyof typeSetError]("")
         } else {
-            if (value.length == 0) {
+            if (value.length === 0) {
                 tFormError[input as keyof typeSetError]("Campo " + input + " requerido!")
             } else {
                 tFormError[input as keyof typeSetError](textControl[input as keyof typeSetError])

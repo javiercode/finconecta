@@ -1,0 +1,229 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Finconecta Application - Free Tier Infrastructure'
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: finconecta-assessment
+    Description: Nombre del ambiente (aparece en tags)
+    
+  KeyPairName:
+    Type: String
+    Default: finconecta-key
+    Description: Nombre del par de claves EC2 (debes crearlo primero)
+
+Resources:
+  # ============ 1. VIRTUAL PRIVATE CLOUD (VPC) ============
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16           # Rango de IPs privadas
+      EnableDnsHostnames: true         # Para poder usar DNS
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-vpc
+
+  # ============ 2. INTERNET GATEWAY ============
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-igw
+
+  # Conectar VPC a Internet Gateway
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # ============ 3. SUBNET PÚBLICA ============
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24          # Sub-rango dentro del VPC
+      AvailabilityZone: !Select [0, !GetAZs '']  # Us-east-1a
+      MapPublicIpOnLaunch: true       # Asigna IP pública automáticamente
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-public-subnet
+
+  # ============ 4. TABLA DE RUTAS ============
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-public-rt
+
+  # Ruta por defecto: todo el tráfico va al Internet Gateway
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  # Asociar subnet con tabla de rutas
+  SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  # ============ 5. SECURITY GROUP (Firewall) ============
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Finconecta application
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        # Regla 1: SSH (puerto 22) - para conectarte
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+          Description: SSH access
+        # Regla 2: Backend Spring Boot (puerto 8080)
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+          Description: Spring Boot backend
+        # Regla 3: Frontend React (puerto 3000)
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+          Description: React frontend
+        # Regla 4: PostgreSQL (puerto 5432)
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 0.0.0.0/0
+          Description: PostgreSQL database
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-sg
+
+  # ============ 6. INSTANCIA EC2 (t2.micro FREE) ============
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro          # FREE TIER (750 horas/mes)
+      ImageId: ami-0c55b159cbfafe1f0  # Amazon Linux 2 (gratis)
+      KeyName: !Ref KeyPairName       # Llave para SSH
+      NetworkInterfaces:
+        - DeviceIndex: 0
+          AssociatePublicIpAddress: true
+          SubnetId: !Ref PublicSubnet
+          GroupSet:
+            - !Ref EC2SecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-ec2
+      # Script que se ejecuta al iniciar la instancia
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Actualizar sistema
+          yum update -y
+          
+          # Instalar Docker
+          amazon-linux-extras install docker -y
+          service docker start
+          usermod -a -G docker ec2-user
+          
+          # Instalar Docker Compose
+          curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          
+          # Crear directorio para la aplicación
+          mkdir -p /home/ec2-user/finconecta
+          cd /home/ec2-user/finconecta
+          
+          # Crear docker-compose.yml básico
+          cat > docker-compose.yml << 'EOF'
+          version: '3.8'
+          services:
+            postgres:
+              image: postgres:15-alpine
+              environment:
+                POSTGRES_DB: finconecta
+                POSTGRES_USER: postgres
+                POSTGRES_PASSWORD: postgres
+              ports:
+                - "5432:5432"
+              volumes:
+                - postgres-data:/var/lib/postgresql/data
+              
+            backend:
+              image: <TU_IMAGEN_BACKEND>
+              depends_on:
+                - postgres
+              environment:
+                SPRING_PROFILES_ACTIVE: aws
+                SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/finconecta
+                SPRING_DATASOURCE_USERNAME: postgres
+                SPRING_DATASOURCE_PASSWORD: postgres
+              ports:
+                - "8080:8080"
+              
+            frontend:
+              image: <TU_IMAGEN_FRONTEND>
+              depends_on:
+                - backend
+              environment:
+                REACT_APP_API_BACKEND: http://localhost:8080/finconecta/api
+              ports:
+                - "3000:3000"
+          
+          volumes:
+            postgres-data:
+          EOF
+          
+          echo "=== INSTANCIA CONFIGURADA ==="
+          echo "1. Sube tus imágenes Docker a Docker Hub"
+          echo "2. Reemplaza <TU_IMAGEN_BACKEND> y <TU_IMAGEN_FRONTEND>"
+          echo "3. Ejecuta: docker-compose up -d"
+          echo "4. Accede: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):3000"
+
+  # ============ 7. ELASTIC IP (IP pública estática) ============
+  ElasticIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref EC2Instance
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-eip
+
+Outputs:
+  EC2PublicIP:
+    Description: Public IP address of EC2 instance
+    Value: !Ref ElasticIP
+  
+  EC2PublicDNS:
+    Description: Public DNS of EC2 instance
+    Value: !GetAtt EC2Instance.PublicDnsName
+  
+  SSHCommand:
+    Description: Command to SSH into the instance
+    Value: !Sub ssh -i ${KeyPairName}.pem ec2-user@${ElasticIP}
+  
+  ApplicationURLs:
+    Description: URLs to access the application
+    Value: !Sub |
+      Frontend: http://${ElasticIP}:3000
+      Backend API: http://${ElasticIP}:8080/finconecta
+      Swagger UI: http://${ElasticIP}:8080/finconecta/swagger-ui/index.html
+      PostgreSQL: ${ElasticIP}:5432
+  
+  CloudFormationStack:
+    Description: CloudFormation Stack Name
+    Value: !Ref AWS::StackName

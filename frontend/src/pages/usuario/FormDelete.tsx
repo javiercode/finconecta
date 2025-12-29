@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import TextField from '@mui/material/TextField';
+import React, { useState } from 'react'
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -11,9 +10,6 @@ import IconDelete from "@mui/icons-material/DeleteOutlineOutlined";
 import Alert from "@mui/material/Alert";
 import {
   dataUser,
-  typeRolData,
-  typeSucursalData,
-  typeCreate,
 } from "../../interfaces/usuario";
 import { deleteService } from "../../service/index.service";
 import { btnDefault } from '../../utils/styles/General';
@@ -32,7 +28,7 @@ const FormDelete: React.FC<IFormDeleteProps> = ({ usuario, getList }) => {
   };
 
   const deleteUser = () => {
-    deleteService("/usuario/delete/" + usuario.id, {}).then(
+    deleteService("/users/" + usuario.id, {}).then(
       (result) => {
         setErrorApi(result.success ? "" : result.message);
         setShowMsgApi(!result.success);

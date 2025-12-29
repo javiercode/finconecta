@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: finconecta
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: finconecta-frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REACT_APP_API_BACKEND
+          value: "http://backend-service:8080/finconecta/api"
+        - name: REACT_APP_ENV
+          value: "kubernetes"
+        - name: CHOKIDAR_USEPOLLING
+          value: "true"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"

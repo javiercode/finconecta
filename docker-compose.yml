@@ -1,65 +1,107 @@
-# docker-compose.yml
 version: '3.8'
 
 services:
-  # PostgreSQL para desarrollo
+  # Base de datos PostgreSQL
   postgres:
     image: postgres:15-alpine
-    container_name: app-postgres-dev
+    container_name: finconecta-postgres
     restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-finconecta}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_HOST_AUTH_METHOD: md5
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_DB: appdb
-      POSTGRES_USER: devuser
-      POSTGRES_PASSWORD: devpassword123
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
+      - postgres-data:/var/lib/postgresql/data
+      - ./bd/init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - finconecta-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U devuser"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-finconecta}" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Spring Boot Backend
+  # Backend Spring Boot con Java 25
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: app-backend-dev
+    container_name: finconecta-backend
     restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/appdb
-      SPRING_DATASOURCE_USERNAME: devuser
-      SPRING_DATASOURCE_PASSWORD: devpassword123
-      SPRING_PROFILES_ACTIVE: dev
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - ~/.m2:/root/.m2  # Cache de Maven
+    environment:
+      # Variable de entorno que también fuerza el perfil docker
+      SPRING_PROFILES_ACTIVE: docker
 
-  # React Frontend
+      # Database Configuration - USANDO NOMBRE DEL CONTENEDOR
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-finconecta}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+
+      # JWT Configuration
+      JWT_SECRET: ${JWT_SECRET:-miClaveSecretaSuperSeguraParaJWT2024Finconecta1234567890}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600000}
+
+      # Server Configuration
+      SERVER_PORT: ${BACKEND_PORT:-8080}
+
+      # CORS Configuration
+      CORS_ALLOWED_ORIGINS: http://localhost:${FRONTEND_PORT:-3000},http://127.0.0.1:${FRONTEND_PORT:-3000}
+      CORS_ALLOWED_METHODS: GET,POST,PUT,DELETE,PATCH,OPTIONS
+
+      # Logging
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB_CORS: DEBUG
+      LOGGING_LEVEL_COM_ASSESSMENT: DEBUG
+    ports:
+      - "${BACKEND_PORT:-8080}:${BACKEND_PORT:-8080}"
+    networks:
+      - finconecta-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/finconecta/swagger-ui/index.html" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Frontend React
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: app-frontend-dev
+    container_name: finconecta-frontend
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
     environment:
-      REACT_APP_API_URL: http://localhost:8080/api
+      # Variables para runtime - Use localhost for browser access
+      REACT_APP_API_BACKEND: http://localhost:${BACKEND_PORT:-8080}${BACKEND_CONTEXT_PATH:-/finconecta}/api
+      REACT_APP_KEY: ${REACT_APP_KEY:-yzR64p2_MMHOrpSbZaoAIzaSyBqcIlr5p3rDL3o}
+      REACT_APP_PATH: ${REACT_APP_PATH:-finconecta}
+      REACT_APP_ENV: docker
+      CHOKIDAR_USEPOLLING: "true"
+      WDS_SOCKET_PORT: "0"
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    networks:
+      - finconecta-network
     stdin_open: true
     tty: true
 
 volumes:
-  postgres_data:
+  postgres-data:
+    driver: local
+
+networks:
+  finconecta-network:
+    driver: bridge

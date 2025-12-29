@@ -3,34 +3,23 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-import IconCreate from "@mui/icons-material/AddCircleOutlineOutlined";
 import Alert from "@mui/material/Alert";
-import Stack from "@mui/material/Stack";
 import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import Box from '@mui/material/Box';
-import InputAdornment from '@mui/material/InputAdornment';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import IconButton from "@mui/material/IconButton";
 import IconEdit from "@mui/icons-material/ModeEditOutlineOutlined";
 import AvatarIcon from '@mui/icons-material/Person';
-import FormHelperText from '@mui/material/FormHelperText';
 
 import {
     putService,
 } from "../../service/index.service";
 import {
     typeFormError,
-    typeSetError, typeSetErrorEdit
+    typeSetErrorEdit
 } from "../../interfaces/usuario";
-import {
-    IOptionMap
-} from "../../interfaces/general";
+
 import { btnDefault } from '../../utils/styles/General';
 import { dataUserEdit } from '../../interfaces/usuario';
 
@@ -77,7 +66,7 @@ const FormUpdate: React.FC<IFormUpdateProps> = ({ usuario, idUser, getList }) =>
 
     let tForm: typeSetErrorEdit = {
         nombre: setNombre,
-        username: setNombre,
+        username: setUsername,
         email: setEmail,
     };
 
@@ -102,7 +91,6 @@ const FormUpdate: React.FC<IFormUpdateProps> = ({ usuario, idUser, getList }) =>
 
         setCreateDto(updateDto)
         Object.keys(createDto).forEach(key => {
-            const x = { text: key, value: createDto[key as keyof dataUserEdit] }
             onChangeInput({ 'target': { 'name': key, 'value': createDto[key as keyof dataUserEdit] } }, key)
         });
         if (createDto.nombre !== "" && createDto.username !== ""
@@ -137,20 +125,17 @@ const FormUpdate: React.FC<IFormUpdateProps> = ({ usuario, idUser, getList }) =>
     };
 
     const onChangeInput = (event: any, input: string) => {
-        const { name, value } = event.target;
-        console.log("value", value)
-        console.log("input", input)
+        const { value } = event.target;
         let regex = new RegExp(regexError[input as keyof typeFormError]);
         if (regex.test(value)) {
             let dto = createDto;
             dto[input as keyof dataUserEdit] = value;
-            console.log("dto",dto)
             setCreateDto(dto);
             tFormError[input as keyof dataUserEdit]("")
 
         } else {
             tFormError[input as keyof dataUserEdit]("Formato de: " + input + " incorrecto!")
-            if (!value && value.length == 0) {
+            if (!value && value.length === 0) {
                 tFormError[input as keyof dataUserEdit]("Campo " + input + " requerido!")
             } else {
                 tFormError[input as keyof dataUserEdit](textControl[input as keyof dataUserEdit])

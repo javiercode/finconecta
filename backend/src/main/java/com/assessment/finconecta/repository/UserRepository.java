@@ -1,6 +1,8 @@
 package com.assessment.finconecta.repository;
 
 import com.assessment.finconecta.entity.User;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -15,5 +17,8 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 
     List<User> findByNombreContainingIgnoreCase(String nombre);
 
-//    List<User> findByActiveTrue();
+    @Query("SELECT u FROM User u WHERE u.activo = true")
+    List<User> findUsersActivos(Pageable pageable);
+
+
 }

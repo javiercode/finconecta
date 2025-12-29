@@ -42,7 +42,7 @@ const SelectAsync: React.FC<ISelectDialogProps> = ({ titulo, nombreBoton }) => {
     }, [loading]);
 
 
-    
+
 
 
     React.useEffect(() => {
@@ -66,7 +66,7 @@ const SelectAsync: React.FC<ISelectDialogProps> = ({ titulo, nombreBoton }) => {
             getOptionLabel={(option) => option.title}
             options={options}
             loading={loading}
-            onKeyUp ={(e)=>console.log(e.target)}
+            onKeyUp={(e) => console.info(e.target)}
             renderInput={(params) => (
                 <TextField
                     {...params}

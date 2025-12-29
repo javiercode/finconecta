@@ -70,9 +70,14 @@ public class UserController {
         }
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<Response<List<UserResponseDto>>> getAllUsers() {
-        List<UserResponseDto> users = userService.getAllUsers();
+    @GetMapping("/all/{pagina}/{limite}")
+    public ResponseEntity<Response<List<UserResponseDto>>> getAllUsers(
+            @PathVariable(name="pagina", required = false) Integer pagina,
+            @PathVariable(name="limite", required = false) Integer limite
+    ) {
+        int page = (pagina != null) ? pagina : 0;
+        int size = (limite != null) ? limite : 10;
+        List<UserResponseDto> users = userService.getAllUsers(pagina, limite);
         return ResponseEntity.ok(
                 Response.<List<UserResponseDto>>builder()
                         .success(true)

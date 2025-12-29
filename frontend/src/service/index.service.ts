@@ -220,7 +220,6 @@ const getHeader = (url: string, type: string, dataPost: any): AxiosRequestConfig
   return header;
 }
 const isLogin = (url: string): boolean => {
-  console.log("isLogin", url);
   return url === '/login';
 }
 

@@ -9,7 +9,6 @@ import TableRow from "@mui/material/TableRow";
 import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
 import Grid from '@mui/material/Grid';
-import { useNavigate } from 'react-router-dom';
 import Typography from "@mui/material/Typography";
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
@@ -23,11 +22,7 @@ import {
 } from "../../service/index.service";
 import {
   dataUser,
-  typeRolData,
-  typeSucursalData,
 } from "../../interfaces/usuario";
-import { esOficial } from "../../store/login";
-import Color from "../../utils/styles/Color";
 import { headerTable } from "../../utils/styles/General";
 
 export interface SimpleDialogProps {
@@ -58,12 +53,6 @@ const columns: readonly Column[] = [
     minWidth: 170,
   },
   {
-    id: "activo",
-    label: "Activo",
-    minWidth: 170,
-    format: (value: number) => value.toFixed(0),
-  },
-  {
     id: "options",
     label: "Opciones",
     minWidth: 170,
@@ -75,18 +64,13 @@ export default function Usuario() {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [dataList, setDataList] = React.useState<dataUser[]>([]);
   const [dataTotal, setDataTotal] = React.useState<number>(0);
-  const [rolList, setRolList] = React.useState<typeRolData[]>([]);
-  const [sucursalList, setSucursalList] = React.useState<typeSucursalData[]>(
-    []
-  );
 
-  let navigate = useNavigate();
   React.useEffect(() => {
-    getList();
-  }, []);
+    getList(page, rowsPerPage);
+  }, [page, rowsPerPage]);
 
-  const getList = () => {
-    getService(`/users/all`, {}).then((result) => {
+  const getList = (page: number = 0, rowsPerPage: number = 10) => {
+    getService(`/users/all/${page}/${rowsPerPage}`, {}).then((result) => {
       if (result.success) {
         const userList = result.data as dataUser[];
         userList.forEach((user, i) => {
@@ -102,14 +86,14 @@ export default function Usuario() {
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
-    getList()
+    getList(newPage, rowsPerPage)
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(+event.target.value);
-    getList()
+    getList(0, +event.target.value)
     setPage(0);
   };
 
@@ -122,7 +106,7 @@ export default function Usuario() {
       <Grid container component="main" justifyContent={'flex-end'} >
         <FormCreate getList={getList} />
       </Grid>
-      <Box sx={{ width: '100%' }} style={{ display: dataList.length == 0 ? 'block' : 'none' }}>
+      <Box sx={{ width: '100%' }} style={{ display: dataList.length === 0 ? 'block' : 'none' }}>
         <LinearProgress />
       </Box>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -151,10 +135,9 @@ export default function Usuario() {
                       <TableCell>{row.nombre}</TableCell>
                       <TableCell>{row.username}</TableCell>
                       <TableCell>{row.email}</TableCell>
-                      <TableCell>{row.active ? "SI" : "NO"}</TableCell>
                       <TableCell>
                         <Stack direction="row" alignItems="center" spacing={2}>
-                          <FormUpdate usuario={row}  getList={getList} idUser={row.id} />
+                          <FormUpdate usuario={row} getList={getList} idUser={row.id} />
                           <FormDelete usuario={row} getList={getList} />
                         </Stack>
                       </TableCell>

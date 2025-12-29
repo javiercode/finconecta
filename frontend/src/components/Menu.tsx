@@ -8,23 +8,16 @@ import Divider from '@mui/material/Divider';
 
 import AvatarIcon from '@mui/icons-material/Person';
 import UsersIcon from '@mui/icons-material/Group';
-import ClientIcon from '@mui/icons-material/AssignmentInd';
-import MapIcon from '@mui/icons-material/Explore';
-import LocatedMapIcon from '@mui/icons-material/MyLocation';
-import TaskIcon from '@mui/icons-material/ListAlt';
-import TaskTimeIcon from '@mui/icons-material/HourglassFull';
-import TaskAssignmentIcon from '@mui/icons-material/Assignment';
-import TaskTimeLineIcon from '@mui/icons-material/Timeline';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 
 import { NavLink } from 'react-router-dom';
-import { RouterPathEnum, aMenuRol } from '../enums/RouterPathEnum';
-import { getAuth, esOficial } from '../store/login';
+import { RouterPathEnum } from '../enums/RouterPathEnum';
+import { getAuth } from '../store/login';
 import { Typography } from '@mui/material';
 import Color from '../utils/styles/Color';
 const aMenu = [
   {
-    title: 'Administración Usuario',
+    title: 'Administración',
     code: 'adm_usuario',
     visible: true,
     children: [
@@ -37,27 +30,23 @@ const aMenu = [
       },
 
     ]
-  }, {
-    title: 'Parametros',
-    code: 'adm_parametros',
-    visible: true,
-    children: []
-  }, {
-    title: 'Administración Tarea',
-    code: 'adm_tarea',
-    visible: true,
-    children: []
-  }
+  },
+  // {
+  //   title: 'Parametros',
+  //   code: 'adm_parametros',
+  //   visible: true,
+  //   children: []
+  // }, {
+  //   title: 'Administración Tarea',
+  //   code: 'adm_tarea',
+  //   visible: true,
+  //   children: []
+  // }
 ];
 
 function controlRoles() {
   aMenu.forEach(function (menu) {
-    const pos = aMenuRol.map(function (e) { return e.code; }).indexOf(menu.code);
     menu.visible = true;
-    // menu.visible = aMenuRol[pos].visible;
-    // if (menu.code === 'adm_usuario' && esOficial()) {
-    //menu.visible = false;
-    // }
   })
   return aMenu;
 }

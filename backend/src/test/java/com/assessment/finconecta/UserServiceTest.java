@@ -104,7 +104,7 @@ class UserServiceTest {
         List<User> users = Arrays.asList(user);
         when(userRepository.findAll()).thenReturn(users);
 
-        List<UserResponseDto> result = userService.getAllUsers();
+        List<UserResponseDto> result = userService.getAllUsers(1,10);
 
         assertNotNull(result);
         assertEquals(1, result.size());

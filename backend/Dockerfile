@@ -1,28 +1,36 @@
-# backend/Dockerfile
-FROM maven:3.8.6-openjdk-17-slim AS build
+# Backend Dockerfile - Mantiene perfil docker al ejecutar
+FROM maven:3.9-eclipse-temurin-25-alpine AS build
 
 WORKDIR /app
 
-# Copiar solo archivos de configuración primero (para cache)
+# 1. Copiar archivos de construcción
 COPY pom.xml .
-COPY src src
+RUN mvn dependency:go-offline -B
 
-# Construir la aplicación
+# 2. Copiar código fuente (INCLUYENDO application.properties)
+COPY src ./src
+
+# 3. Compilar (NO modificar nada aquí)
 RUN mvn clean package -DskipTests
 
-# Imagen final
-FROM openjdk:17-jdk-slim
+# 4. Verificar construcción
+RUN echo "=== Verificando JAR generado ===" && \
+    find /app/target -name "*.jar" -type f -exec ls -la {} \;
 
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
-# Copiar el JAR construido
-COPY --from=build /app/target/*.jar app.jar
+# Instalar curl para healthcheck
+RUN apk add --no-cache curl
 
-# Variables de entorno por defecto
-ENV SPRING_PROFILES_ACTIVE=dev
+# Copiar JAR construido
+COPY --from=build /app/target/*.jar /app/app.jar
 
-# Puerto de la aplicación
+# Verificar que el JAR existe
+RUN echo "=== Verificación final en runtime ===" && \
+    ls -la /app/app.jar
+
 EXPOSE 8080
 
-# Comando de inicio
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# FORZAR perfil docker al ejecutar - Aquí está la clave
+ENTRYPOINT ["java", "-jar", "/app/app.jar", "--spring.profiles.active=docker"]

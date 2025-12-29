@@ -7,6 +7,8 @@ import com.assessment.finconecta.dto.UserResponseDto;
 import com.assessment.finconecta.entity.User;
 import com.assessment.finconecta.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,8 +50,9 @@ public class UserService {
         return mapToResponseDto(user);
     }
 
-    public List<UserResponseDto> getAllUsers() {
-        return userRepository.findAll()
+    public List<UserResponseDto> getAllUsers(Integer pagina, Integer limite) {
+        Pageable pageable = PageRequest.of(pagina, limite);
+        return userRepository.findUsersActivos(pageable)
                 .stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
