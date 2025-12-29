@@ -223,7 +223,7 @@ kubectl delete namespace finconecta
 - **Java**: 25 (incluido en Docker)
 - **Node.js**: 18+ (incluido en Docker)
 
-## 🆘 Logs
+## 📊 Logs
 
 Para verificarlos:
 1. Verifica que todos los puertos estén libres
@@ -232,7 +232,49 @@ Para verificarlos:
 4. Verifica que las imágenes se construyeron correctamente
 
 ---
+###  **Theorethical Questions**
+## 📚 **Java Spring Framework**
 
-**Nota:** Para producción, configura variables de entorno seguras y considera usar un registry de imágenes (Docker Hub, ECR, GCR).
+**¿Qué es Inyección de Dependencias y por qué es importante?**  
+La Inyección de Dependencias (DI) es un patrón donde Spring provee automáticamente las dependencias que un objeto necesita, en lugar de que el objeto las cree. **Importante** porque reduce el acoplamiento, facilita testing y promueve código modular.
 
-**Estado:** ✅ Listo para desarrollo y testing
+**¿Cuál es la diferencia entre Spring MVC y Spring Boot?**  
+**Spring MVC** es un framework para aplicaciones web basado en el patrón MVC. **Spring Boot** es una extensión de Spring que simplifica la configuración y despliegue, con servidor embebido y configuración automática.
+
+## 📚 **Bases de Datos**
+
+**Compara MongoDB vs PostgreSQL: modelo de datos, consultas, escalabilidad**  
+**MongoDB**: Documentos JSON (NoSQL), consultas flexibles, escalabilidad horizontal.  
+**PostgreSQL**: Tablas relacionales (SQL), consultas SQL robustas, escalabilidad vertical y read-replicas.
+
+**¿Cuándo elegirías uno sobre el otro?**  
+**PostgreSQL** para datos transaccionales, integridad referencial y consultas complejas.  
+**MongoDB** para datos no estructurados, escalabilidad masiva y esquemas flexibles.
+
+## **AWS**
+
+**Compara EC2 y ECS**  
+**EC2**: Máquinas virtuales tradicionales, administración manual.  
+**ECS**: Servicio de orquestación de contenedores Docker, gestión simplificada.
+
+**¿Cómo asegurarías alta disponibilidad y tolerancia a fallos?**  
+- Múltiples instancias en diferentes zonas de disponibilidad
+- Auto Scaling Groups
+- Load Balancers
+- Bases de datos Multi-AZ
+- Health checks y recuperación automática
+
+## **Microservicios & Kubernetes**
+
+**Define microservicios y sus beneficios**  
+Arquitectura donde una aplicación se divide en servicios pequeños, independientes y desplegables por separado.  
+**Beneficios**: Escalabilidad independiente, despliegues rápidos, tolerancia a fallos, heterogeneidad tecnológica.
+
+**Explica cómo Kubernetes soporta arquitecturas de microservicios**  
+Kubernetes provee:
+- Orquestación automática de contenedores
+- Service discovery y load balancing
+- Auto-escalado horizontal
+- Self-healing (restarts automáticos)
+- Gestión de configuraciones y secretos
+- Namespaces para aislamiento lógico
